@@ -61,7 +61,8 @@ export default {
       languageTypeList: {
         'en': 'en',
         'zh': 'zh_CN'
-      }
+      },
+      endId: ''
     }
   },
   computed: {
@@ -94,6 +95,10 @@ export default {
     this.destroyTinymce()
   },
   methods: {
+    pushTextToCurrentCursor(text) {
+      const editor = window.tinymce.get(this.tinymceId)
+      editor.execCommand('mceInsertContent', false, text)
+    },
     initTinymce() {
       const _this = this
       window.tinymce.init({
@@ -122,6 +127,16 @@ export default {
           editor.on('NodeChange Change KeyUp SetContent', () => {
             this.hasChange = true
             this.$emit('input', editor.getContent())
+          })
+          editor.on('Focus', () => {
+            // var newNode = editor.dom.select('b#' + this.endId);
+            // const el = editor.dom.create('span', {} , 'test');
+            // editor.dom.insertAfter(el, newNode[0]);
+            // editor.dom.remove(newNode);
+          })
+          editor.on('Blur', () => {
+            // this.endId = window.tinymce.DOM.uniqueId();
+            // editor.dom.add(editor.selection.getNode(), 'b', {'id': this.endId }, '');
           })
         },
         setup(editor) {

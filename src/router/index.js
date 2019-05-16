@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
+/* import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+import nestedRouter from './modules/nested' */
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -83,7 +83,7 @@ export const constantRoutes = [
       }
     ]
   },
-  {
+  /* {
     path: '/documentation',
     component: Layout,
     children: [
@@ -107,7 +107,7 @@ export const constantRoutes = [
         meta: { title: 'Guide', icon: 'guide', noCache: true }
       }
     ]
-  },
+  }, */
   {
     path: '/profile',
     component: Layout,
@@ -129,7 +129,7 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  {
+  /* {
     path: '/permission',
     component: Layout,
     redirect: '/permission/page',
@@ -184,7 +184,6 @@ export const asyncRoutes = [
     ]
   },
 
-  /** when your routing map is too long, you can split it into small modules **/
   componentsRouter,
   chartsRouter,
   nestedRouter,
@@ -271,8 +270,45 @@ export const asyncRoutes = [
         meta: { title: 'Error Log', icon: 'bug' }
       }
     ]
-  },
+  }, */
 
+  {
+    path: '/upload-excel',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/excel/upload-excel'),
+        name: 'UploadExcel',
+        meta: { title: '1. Upload Excel' }
+      }
+    ]
+  },
+  {
+    path: '/create-campaign',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/example/create-campaign'),
+        name: 'CreateCampaign',
+        meta: { title: '2. Create Campaign' }
+      }
+    ]
+  },
+  {
+    path: '/review-campaign',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/profile/review-campaign'),
+        name: 'ReviewCampaign',
+        meta: { title: '3. Review' }
+      }
+    ]
+  }
+  /*
   {
     path: '/excel',
     component: Layout,
@@ -383,8 +419,7 @@ export const asyncRoutes = [
     ]
   },
 
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true } */
 ]
 
 const createRouter = () => new Router({
