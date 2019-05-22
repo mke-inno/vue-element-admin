@@ -2,7 +2,8 @@ import request from '@/utils/request'
 
 export function login(data) {
   return request({
-    url: '/user/login',
+    url: 'https://yikfydk8cl.execute-api.ap-southeast-1.amazonaws.com/dev/user/login',
+    // url: 'user/login',
     method: 'post',
     data
   })

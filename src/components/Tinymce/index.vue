@@ -126,7 +126,7 @@ export default {
           _this.hasInit = true
           editor.on('NodeChange Change KeyUp SetContent', () => {
             this.hasChange = true
-            this.$emit('input', editor.getContent())
+            this.$emit('input', `${editor.getContent()}#$#@${editor.getContent({format : 'text'})}`)
           })
           editor.on('Focus', () => {
             // var newNode = editor.dom.select('b#' + this.endId);

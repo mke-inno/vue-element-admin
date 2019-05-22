@@ -2,7 +2,7 @@
   <div class="app-container">
     <aside v-if="isDoneSubmit">
       Your data has been posted!.<br>
-      You can access dashboard with this link <a href="https://tradinguat.maybank-ke.co.th/bob/client/demo/client/index" target="_blank"> https://tradinguat.maybank-ke.co.th/bob/client/demo/client/index</a>
+      You can access dashboard with this link <a v-bind:href="resultUrl" target="_blank"> {{ resultUrl }}</a>
     </aside>
     <div>
       <el-row :gutter="20">
@@ -44,7 +44,8 @@ export default {
   data() {
     return {
       fullscreenLoading: false,
-      isDoneSubmit: false
+      isDoneSubmit: false,
+      resultUrl: '',
     }
   },
   methods: {
@@ -83,49 +84,61 @@ export default {
       }
 
       // process split contentTemplate
+      //console.log(postForm.content);
+      const formatedAndUnFormated = postForm.content.split('#$#@');
+      if(formatedAndUnFormated.length == 2) {
+        const formated = formatedAndUnFormated[0];
+        const unFormated = formatedAndUnFormated[1];
 
-      const regex = /.*Currency Selection.*/g
-      const m = regex.exec(postForm.content)
-      // console.log(m);
-      let newStr = postForm.content
-      for (let i = 0; i < m.length; i++) {
-        newStr = insert(newStr, m.index, 'SPLITED')
-        // + 1 is for new line.
-        newStr = insert(newStr, m.index + m[0].length + 'SPLITED'.length + 1, 'SPLITED')
-      }
-      // console.log(newStr);
+        const regex = /.*Currency Selection.*/g
+        const m = regex.exec(formated)
+        
+        if(m !== null) {
+          let newStr = formated
+          for (let i = 0; i < m.length; i++) {
+            newStr = insert(newStr, m.index, 'SPLITED')
+            // + 1 is for new line.
+            newStr = insert(newStr, m.index + m[0].length + 'SPLITED'.length + 1, 'SPLITED')
+          }
 
-      var splits = newStr.split('SPLITED')
-      // console.log(splits)
-      // console.log(postForm.content);
+          var splits = newStr.split('SPLITED')
+        }
 
-      // console.log(splits);
+        //console.log(JSON.stringify({unFormated}));
+        //console.log(JSON.stringify({unFormated : unFormated.replace('\n\n','\n')}));
+        //return;
 
-      axios.post('https://bw5ztr856l.execute-api.ap-southeast-1.amazonaws.com/demo/upload', {
-        category: 'DigitalApp',
-        name: 'Digital_test_upload_2',
-        service: 'MKEDIGITAL',
-        serviceKey: 'demomkedigitalservicekey',
-        delimiter: ',',
-        AccountIdColumnName: clientFieldName,
-        data: data,
-        contentTemplate: splits
-      }, { headers: { 'x-api-key': '6EeCO75hTj9LcIKVlJfTJ7qRIyLRgMmiasSCUAKa' }})
-        .then((response) => {
-          loading.close()
-          this.$notify({
-            title: 'Success',
-            message: 'Data has been posted',
-            type: 'success',
-            duration: 4000
+        axios.post('https://bw5ztr856l.execute-api.ap-southeast-1.amazonaws.com/demo/upload', {
+          category: 'DigitalApp',
+          name: 'Digital_test_upload_2',
+          service: 'MKEDIGITAL',
+          serviceKey: 'demomkedigitalservicekey',
+          delimiter: ',',
+          AccountIdColumnName: clientFieldName,
+          data: data,
+          contentTemplate: splits,
+          contentTemplateStr: unFormated.replace('\n\n','\n'),
+        }, { headers: { 'x-api-key': '6EeCO75hTj9LcIKVlJfTJ7qRIyLRgMmiasSCUAKa' }})
+          .then((response) => {
+            loading.close()
+            this.resultUrl = response.data.message;
+            this.$notify({
+              title: 'Success',
+              message: 'Data has been posted',
+              type: 'success',
+              duration: 4000
+            })
+            this.isDoneSubmit = true
+            console.log(response)
           })
-          this.isDoneSubmit = true
-          console.log(response)
-        })
-        .catch(function(error) {
-          console.log(error)
-          loading.close()
-        })
+          .catch(function(error) {
+            console.log(error)
+            loading.close()
+          })
+
+      }else {
+        alert('some thing went wrong...');
+      }
     }
   },
   computed: {
@@ -138,7 +151,14 @@ export default {
       const { tableData, tableHeader, postForm, actionsList } = this.$route.params
       const returnExamples = []
 
-      if (postForm.content === '') {
+      const formatedAndUnFormated = postForm.content.split('#$#@');
+      if(formatedAndUnFormated.length !== 2) {
+        return [];
+      }
+
+      const formated = formatedAndUnFormated[0];
+
+      if (formated === '') {
         return []
       }
 
@@ -147,13 +167,13 @@ export default {
 
       // find affect field
       for (let i = 0; i < tableHeader.length; i++) {
-        if (postForm.content.includes(tableHeader[i])) {
+        if (formated.includes(tableHeader[i])) {
           affectFields[tableHeader[i]] = true
         }
       }
 
       for (let i = 0; i < actionsList.length; i++) {
-        if (postForm.content.includes(actionsList[i])) {
+        if (formated.includes(actionsList[i])) {
           affectActions[actionsList[i]] = true
         }
       }
@@ -164,7 +184,7 @@ export default {
       for (let i = 0; i < tableData.length; i++) {
         const row = tableData[i]
 
-        let content = postForm.content
+        let content = formated;
 
         for (const field in affectFields) {
           // propertyName is what you want
